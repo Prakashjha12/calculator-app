@@ -3,25 +3,50 @@ let buttons = document.querySelectorAll('button');
 
 let string = "";
 let arr = Array.from(buttons);
-arr.forEach(button => {
-    button.addEventListener('click', (e) =>{
-        if(e.target.innerHTML == '='){
-            string = eval(string);
-            input.value = string;
-        }
+let isKeyPress = false;
 
-        else if(e.target.innerHTML == 'AC'){
-            string = "";
-            input.value = string;
+arr.forEach(button => {
+    button.addEventListener('click', (e) => {
+        if (!isKeyPress) {
+            handleInput(e.target.innerHTML);
         }
-        else if(e.target.innerHTML == 'DEL'){
-            string = string.substring(0, string.length-1);
-            input.value = string;
+        isKeyPress = false; // Reset the flag after handling the input
+    });
+});
+
+document.addEventListener('keydown', (e) => {
+    let key = e.key;
+    if (key === 'Enter') {
+        key = '=';
+    } else if (key === 'Backspace') {
+        key = 'DEL';
+    } else if (key === 'Escape') {
+        key = 'AC';
+    }
+    isKeyPress = true; // Set the flag to indicate a key press
+    handleInput(key);
+});
+
+function handleInput(inputChar) {
+    if (inputChar === '=') {
+        try {
+            string = eval(string);
+        } catch (e) {
+            string = "Error";
         }
-        else{
-            string += e.target.innerHTML;
-            input.value = string;
-        }
-        
-    })
-})
+        input.value = string;
+    } else if (inputChar === 'AC') {
+        string = "";
+        input.value = string;
+    } else if (inputChar === 'DEL') {
+        string = string.substring(0, string.length - 1);
+        input.value = string;
+    } else if (isValidInput(inputChar)) {
+        string += inputChar;
+        input.value = string;
+    }
+}
+
+function isValidInput(char) {
+    return /[0-9+\-*/.]/.test(char);
+}
